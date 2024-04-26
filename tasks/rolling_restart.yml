@@ -1,5 +1,4 @@
 ---
-
 - name: Cordon and Drain the node {{ rke2_node_name }}
   ansible.builtin.shell: |
     set -o pipefail
@@ -38,6 +37,7 @@
   retries: 100
   delay: 15
   delegate_to: "{{ active_server | default(groups[rke2_servers_group_name].0) }}"
+  delegate_facts: true
   run_once: true
 
 - name: Uncordon the node {{ rke2_node_name }}
@@ -61,10 +61,10 @@
   failed_when: "all_pods_ready.rc not in [ 0, 1 ]"
   changed_when: false
   register: all_pods_ready
-  until:
-    '"0" in all_pods_ready.stdout'
+  until: '"0" in all_pods_ready.stdout'
   retries: 100
   delay: 15
   delegate_to: "{{ active_server | default(groups[rke2_servers_group_name].0) }}"
+  delegate_facts: true
   run_once: true
   when: rke2_wait_for_all_pods_to_be_ready
